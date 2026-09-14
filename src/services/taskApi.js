@@ -1,71 +1,72 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/tasks";
+import { supabase } from "./supabaseClient";
 
+function mapTaskFromDb(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    status: row.status,
+    completed: row.completed,
+    dueDate: row.due_date,
+  };
+}
 export async function getTasks() {
-  const response = await fetch(BASE_URL);
-  if (!response.ok) {
-    throw new Error(`Server responded with ${response.status}`);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id);
+  if (error) {
+    throw new Error(error.message);
   }
-  return response.json();
+  return data.map(mapTaskFromDb);
+}
+
+export async function createTask(title, status, completed = false) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .insert([{ title, status, completed, user_id: user.id }])
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return mapTaskFromDb(data);
 }
 
 export async function moveTask(id, status, completed) {
-  const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ status, completed }),
-  });
-  if (!response.ok) {
-    throw new Error(`Server responded with ${response.status}`);
-  }
+  const { error } = await supabase
+    .from("tasks")
+    .update({ status, completed })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
 }
+
 export async function toggleTaskCompleted(id, completed) {
-  const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ completed }),
-  });
-  if (!response.ok) throw new Error(`Server responded with ${response.status}`);
-}
-export async function createTask(title, status, completed = false) {
-  const response = await fetch(BASE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ title, status, completed }),
-  });
-  if (!response.ok) {
-    throw new Error(`Server responded with ${response.status}`);
-  }
-  return response.json();
-}
+  const { error } = await supabase
+    .from("tasks")
+    .update({ completed })
+    .eq("id", id);
 
-export async function deleteTask(id) {
-  const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) {
-    throw new Error(`Server responded with ${response.status}`);
-  }
-}
-
-export async function creteTask(title, status, completed = false) {
-  const response = await fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, status, completed, dueDate: null }),
-  });
-  if (!response.ok) throw new Error(`Server responded with ${response.status}`);
-  return response.json();
+  if (error) throw new Error(error.message);
 }
 
 export async function updateTaskDueDate(id, dueDate) {
-  const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ dueDate }),
-  });
-  if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+  const { error } = await supabase
+    .from("tasks")
+    .update({ due_date: dueDate })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteTask(id) {
+  const { error } = await supabase.from("tasks").delete().eq("id", id);
+
+  if (error) throw new Error(error.message);
 }

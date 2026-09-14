@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../../../context/AuthContext";
 import {
   getTasks,
   createTask,
@@ -7,27 +8,29 @@ import {
   toggleTaskCompleted as toggleTaskCompletedApi,
   updateTaskDueDate as updateTaskDueDateApi,
 } from "../../../services/taskApi";
-async function snapshotAndCancel(queryClient) {
-  await queryClient.cancelQueries({ queryKey: ["tasks"] });
-  return queryClient.getQueryData(["tasks"]);
+async function snapshotAndCancel(queryClient, queryKey) {
+  await queryClient.cancelQueries({ queryKey });
+  return queryClient.getQueryData(queryKey);
 }
 
-function rollback(queryClient, context) {
-  queryClient.setQueryData(["tasks"], context.previousTasks);
+function rollback(queryClient, queryKey, context) {
+  queryClient.setQueryData(queryKey, context.previousTasks);
 }
 
-function syncWithServer(queryClient) {
-  queryClient.invalidateQueries({ queryKey: ["tasks"] });
+function syncWithServer(queryClient, queryKey) {
+  queryClient.invalidateQueries({ queryKey });
 }
 function useTasks() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const queryKey = ["tasks", user.id];
 
   const {
     data: tasks = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["tasks"],
+    queryKey,
     queryFn: getTasks,
   });
 
@@ -35,21 +38,21 @@ function useTasks() {
     mutationFn: ({ title, status, completed }) =>
       createTask(title, status, completed),
     onMutate: async ({ title, status, completed }) => {
-      const previousTasks = await snapshotAndCancel(queryClient);
+      const previousTasks = await snapshotAndCancel(queryClient, queryKey);
       const tempTask = {
         id: `temp-${crypto.randomUUID()}`,
         title,
         status,
         completed,
       };
-      queryClient.setQueryData(["tasks"], (old) => [...old, tempTask]);
+      queryClient.setQueryData(queryKey, (old) => [...old, tempTask]);
       return { previousTasks };
     },
     onError: (err, variables, context) => {
-      rollback(queryClient, context);
+      rollback(queryClient, queryKey, context);
     },
     onSettled: () => {
-      syncWithServer(queryClient);
+      syncWithServer(queryClient, queryKey);
     },
   });
 
@@ -57,40 +60,41 @@ function useTasks() {
     mutationFn: ({ id, status, completed }) =>
       moveTaskApi(id, status, completed),
     onMutate: async ({ id, status, completed }) => {
-      const previousTasks = await snapshotAndCancel(queryClient);
-      queryClient.setQueryData(["tasks"], (old) =>
+      const previousTasks = await snapshotAndCancel(queryClient, queryKey);
+      queryClient.setQueryData(queryKey, (old) =>
         old.map((task) =>
           task.id === id ? { ...task, status: status, completed } : task,
         ),
       );
       return { previousTasks };
     },
-    onError: (err, variables, context) => rollback(queryClient, context),
-    onSettled: () => syncWithServer(queryClient),
+    onError: (err, variables, context) =>
+      rollback(queryClient, queryKey, context),
+    onSettled: () => syncWithServer(queryClient, queryKey),
   });
 
   const deleteTaskMutation = useMutation({
     mutationFn: (id) => deleteTaskApi(id),
     onMutate: async (id) => {
-      const previousTasks = await snapshotAndCancel(queryClient);
-      queryClient.setQueryData(["tasks"], (old) =>
+      const previousTasks = await snapshotAndCancel(queryClient, queryKey);
+      queryClient.setQueryData(queryKey, (old) =>
         old.filter((task) => task.id !== id),
       );
       return { previousTasks };
     },
     onError: (err, id, context) => {
-      rollback(queryClient, context);
+      rollback(queryClient, queryKey, context);
     },
     onSettled: () => {
-      syncWithServer(queryClient);
+      syncWithServer(queryClient, queryKey);
     },
   });
 
   const toggleTaskCompletedMutation = useMutation({
     mutationFn: ({ id, completed }) => toggleTaskCompletedApi(id, completed),
     onMutate: async ({ id, completed }) => {
-      const previousTasks = await snapshotAndCancel(queryClient);
-      queryClient.setQueryData(["tasks"], (old) =>
+      const previousTasks = await snapshotAndCancel(queryClient, queryKey);
+      queryClient.setQueryData(queryKey, (old) =>
         old.map((task) =>
           task.id === id ? { ...task, completed: completed } : task,
         ),
@@ -98,18 +102,18 @@ function useTasks() {
       return { previousTasks };
     },
     onError: (err, variables, context) => {
-      rollback(queryClient, context);
+      rollback(queryClient, queryKey, context);
     },
     onSettled: () => {
-      syncWithServer(queryClient);
+      syncWithServer(queryClient, queryKey);
     },
   });
 
   const updateDueDateMutation = useMutation({
     mutationFn: ({ id, dueDate }) => updateTaskDueDateApi(id, dueDate),
     onMutate: async ({ id, dueDate }) => {
-      const previousTasks = await snapshotAndCancel(queryClient);
-      queryClient.setQueryData(["tasks"], (old) =>
+      const previousTasks = await snapshotAndCancel(queryClient, queryKey);
+      queryClient.setQueryData(queryKey, (old) =>
         old.map((task) =>
           task.id === id ? { ...task, dueDate: dueDate } : task,
         ),
@@ -117,10 +121,10 @@ function useTasks() {
       return { previousTasks };
     },
     onError: (err, variables, context) => {
-      rollback(queryClient, context);
+      rollback(queryClient, queryKey, context);
     },
     onSettled: () => {
-      syncWithServer(queryClient);
+      syncWithServer(queryClient, queryKey);
     },
   });
 
