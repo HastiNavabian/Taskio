@@ -52,7 +52,7 @@
     {
       "title": "تتال",
       "status": "this-week",
-      "completed": true,
+      "completed": false,
       "id": 19,
       "dueDate": ""
     },
@@ -64,7 +64,7 @@
     },
     {
       "title": "hgjhg",
-      "status": "today",
+      "status": "this-week",
       "completed": false,
       "id": 21
     }
