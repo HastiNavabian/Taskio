@@ -25,6 +25,8 @@ function LoginForm() {
   }
 
   async function handleForgotPassword() {
+    setError(null);
+    setMessage(null);
     if (!email) {
       setError("Enter your email first, then click Forgot Password.");
       return;

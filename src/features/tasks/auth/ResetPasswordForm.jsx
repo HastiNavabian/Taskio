@@ -6,20 +6,13 @@ function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  async function handleForgotPassword() {
+  async function handleSubmit(e) {
+    e.preventDefault();
     setError(null);
-    setMessage(null);
 
-    if (!email) {
-      setError("Enter your email first, then click Forgot Password.");
-      return;
-    }
-
-    const { error } = await resetPassword(email);
+    const { error } = await updatePassword(password);
     if (error) {
       setError(error.message);
-    } else {
-      setMessage("Password reset email sent. Check your inbox.");
     }
   }
 
