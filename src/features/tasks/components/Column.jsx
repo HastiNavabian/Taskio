@@ -101,7 +101,9 @@ function Column({
           dueDate={task.dueDate}
         />
       ))}
-
+      {tasks.length === 0 && !isAdding && (
+        <p className="column-empty">No tasks yet</p>
+      )}
       {isAdding && (
         <form onSubmit={handleSubmit}>
           <input
