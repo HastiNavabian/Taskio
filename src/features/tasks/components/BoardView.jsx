@@ -3,7 +3,9 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragOverlay,
 } from "@dnd-kit/core";
+import { useState } from "react";
 import Column from "./Column";
 import SearchInput from "./SearchInput";
 import useSearchStore from "../../../store/searchStore";
@@ -30,7 +32,15 @@ function BoardView({ user, signOut }) {
     }),
   );
 
+  const [activeTask, setActiveTask] = useState(null);
+
+  function handleDragStart(event) {
+    const task = tasks.find((t) => t.id === event.active.id);
+    setActiveTask(task);
+  }
+
   function handleDragEnd(event) {
+    setActiveTask(null);
     const { active, over } = event;
     if (!over) return;
 
@@ -68,17 +78,26 @@ function BoardView({ user, signOut }) {
 
   return (
     <>
-      <div className="top-bar">
-        <SearchInput />
-        <button type="button" className="theme-toggle" onClick={toggleTheme}>
-          {theme === "light" ? "🌙" : "☀️"}
-        </button>
-        <button type="button" className="theme-toggle" onClick={signOut}>
-          🚪
-        </button>
-      </div>
+      <header className="app-header">
+        <div className="app-header-brand">Taskio</div>
+        <div className="app-header-search">
+          <SearchInput />
+        </div>
+        <div className="app-header-actions">
+          <button type="button" className="icon-button" onClick={toggleTheme}>
+            {theme === "light" ? "🌙" : "☀️"}
+          </button>
+          <button type="button" className="icon-button" onClick={signOut}>
+            🚪
+          </button>
+        </div>
+      </header>
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
         <div className="board">
           <Column
             title="Today"
@@ -108,6 +127,20 @@ function BoardView({ user, signOut }) {
             onDueDateChange={updateTaskDueDate}
           />
         </div>
+        <DragOverlay dropAnimation={null}>
+          {activeTask ? (
+            <div className="task-card task-card-overlay">
+              <div className="task-card-header">
+                <input
+                  type="checkbox"
+                  checked={activeTask.completed}
+                  readOnly
+                />
+                <span className="task-title">{activeTask.title}</span>
+              </div>
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </>
   );

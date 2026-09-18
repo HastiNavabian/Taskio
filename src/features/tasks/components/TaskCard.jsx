@@ -35,12 +35,11 @@ function TaskCard({
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id,
+  });
 
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-
-  const style = transform
-    ? { transform: `translate(${transform.x}px, ${transform.y}px)` }
-    : undefined;
+  const style = isDragging ? { opacity: 0.4 } : undefined;
 
   return (
     <div
