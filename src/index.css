@@ -313,7 +313,9 @@ body.theme-transition {
   transition:
     box-shadow 0.15s ease,
     transform 0.1s ease;
-  /* z-index: 20000; */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .task-card:hover {

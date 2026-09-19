@@ -3,6 +3,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  TouchSensor,
   DragOverlay,
 } from "@dnd-kit/core";
 import { useState } from "react";
@@ -29,6 +30,9 @@ function BoardView({ user, signOut }) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 150, tolerance: 5 },
     }),
   );
 
