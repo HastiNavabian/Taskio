@@ -313,7 +313,6 @@ body.theme-transition {
   transition:
     box-shadow 0.15s ease,
     transform 0.1s ease;
-  touch-action: none;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -725,5 +724,11 @@ body.theme-transition {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .task-card {
+    touch-action: none;
   }
 }
