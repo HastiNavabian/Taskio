@@ -20,7 +20,6 @@ function TaskCard({
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef(null);
   const triggerRef = useRef(null);
-  const dateInputRef = useRef(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const titleInputRef = useRef(null);
@@ -41,6 +40,15 @@ function TaskCard({
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
+
+  useEffect(() => {
+    function handleDragStartGlobal() {
+      setMenuOpen(false);
+    }
+    document.addEventListener("task-drag-start", handleDragStartGlobal);
+    return () =>
+      document.removeEventListener("task-drag-start", handleDragStartGlobal);
+  }, []);
 
   function handleMenuToggle(e) {
     e.stopPropagation();
@@ -175,19 +183,17 @@ function TaskCard({
             >
               Details
             </button>
-            <button
-              type="button"
-              onClick={() => dateInputRef.current?.showPicker()}
-            >
-              Edit dates
-            </button>
-            <input
-              ref={dateInputRef}
-              className="hidden-date-input"
-              value={dueDate || ""}
-              onChange={(e) => onDueDateChange(id, e.target.value)}
-              type="date"
-            />
+
+            <label className="menu-date-label">
+              Due date
+              <input
+                type="date"
+                value={dueDate || ""}
+                onChange={(e) => onDueDateChange(id, e.target.value)}
+                className="menu-date-input"
+              />
+            </label>
+
             <button
               type="button"
               onClick={() => {

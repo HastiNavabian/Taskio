@@ -28,7 +28,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function signUp(email, password) {
-    return supabase.auth.signUp({ email, password });
+    return supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
   }
   async function signIn(email, password) {
     return supabase.auth.signInWithPassword({ email, password });

@@ -38,6 +38,7 @@ function BoardView({ user, signOut }) {
   function handleDragStart(event) {
     const task = tasks.find((t) => t.id === event.active.id);
     setActiveTask(task);
+    document.dispatchEvent(new CustomEvent("task-drag-start"));
   }
 
   function handleDragEnd(event) {
