@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { createPortal } from "react-dom";
 import Modal from "./Modal";
 import Button from "./Button";
 
@@ -15,6 +16,7 @@ function TaskCard({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef(null);
   const triggerRef = useRef(null);
   const dateInputRef = useRef(null);
@@ -35,10 +37,25 @@ function TaskCard({
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
+
+  function handleMenuToggle(e) {
+    e.stopPropagation();
+    if (!menuOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const menuHeight = 150;
+      const openUpward = window.innerHeight - rect.bottom < menuHeight;
+
+      setMenuPosition({
+        top: openUpward ? rect.top - menuHeight : rect.bottom + 4,
+        left: rect.right - 170,
+      });
+    }
+    setMenuOpen((open) => !open);
+  }
+
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id,
   });
-
   const style = isDragging ? { opacity: 0.4 } : undefined;
 
   return (
@@ -66,54 +83,54 @@ function TaskCard({
           type="button"
           ref={triggerRef}
           className="task-menu-trigger"
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen((open) => !open);
-          }}
+          onClick={handleMenuToggle}
         >
           ⋯
         </button>
       </div>
 
-      {menuOpen && (
-        <div
-          className="task-menu"
-          ref={menuRef}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              setIsModalOpen(true);
-              setMenuOpen(false);
-            }}
+      {menuOpen &&
+        createPortal(
+          <div
+            className="task-menu task-menu-portal"
+            ref={menuRef}
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+            onClick={(e) => e.stopPropagation()}
           >
-            Details
-          </button>
-          <button
-            type="button"
-            onClick={() => dateInputRef.current?.showPicker()}
-          >
-            Edit dates
-          </button>
-          <input
-            ref={dateInputRef}
-            className="hidden-date-input"
-            value={dueDate || ""}
-            onChange={(e) => onDueDateChange(id, e.target.value)}
-            type="date"
-          />
-          <button
-            type="button"
-            onClick={() => {
-              onDelete(id);
-              setMenuOpen(false);
-            }}
-          >
-            Delete
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              onClick={() => {
+                setIsModalOpen(true);
+                setMenuOpen(false);
+              }}
+            >
+              Details
+            </button>
+            <button
+              type="button"
+              onClick={() => dateInputRef.current?.showPicker()}
+            >
+              Edit dates
+            </button>
+            <input
+              ref={dateInputRef}
+              className="hidden-date-input"
+              value={dueDate || ""}
+              onChange={(e) => onDueDateChange(id, e.target.value)}
+              type="date"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                onDelete(id);
+                setMenuOpen(false);
+              }}
+            >
+              Delete
+            </button>
+          </div>,
+          document.body,
+        )}
 
       {isModalOpen && (
         <Modal>

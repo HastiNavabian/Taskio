@@ -258,6 +258,11 @@ body.theme-transition {
   color: var(--text);
 }
 
+.task-menu-up {
+  top: auto;
+  bottom: 38px;
+}
+
 .column-menu,
 .task-menu {
   position: absolute;
@@ -731,4 +736,9 @@ body.theme-transition {
   .task-card {
     touch-action: none;
   }
+}
+.task-menu-portal {
+  position: fixed;
+  top: auto;
+  inset-inline-end: auto;
 }
