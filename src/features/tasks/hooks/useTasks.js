@@ -62,11 +62,13 @@ function useTasks() {
       moveTaskApi(id, status, completed),
     onMutate: async ({ id, status, completed }) => {
       const previousTasks = await snapshotAndCancel(queryClient, queryKey);
-      queryClient.setQueryData(queryKey, (old) =>
-        old.map((task) =>
-          task.id === id ? { ...task, status: status, completed } : task,
-        ),
-      );
+
+      queryClient.setQueryData(queryKey, (old) => {
+        const task = old.find((t) => t.id === id);
+        const rest = old.filter((t) => t.id !== id);
+        return [...rest, { ...task, status, completed }];
+      });
+
       return { previousTasks };
     },
     onError: (err, variables, context) =>
