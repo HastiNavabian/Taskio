@@ -70,3 +70,9 @@ export async function deleteTask(id) {
 
   if (error) throw new Error(error.message);
 }
+
+export async function updateTaskTitle(id, title) {
+  const { error } = await supabase.from("tasks").update({ title }).eq("id", id);
+
+  if (error) throw new Error(error.message);
+}

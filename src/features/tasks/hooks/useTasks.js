@@ -7,6 +7,7 @@ import {
   moveTask as moveTaskApi,
   toggleTaskCompleted as toggleTaskCompletedApi,
   updateTaskDueDate as updateTaskDueDateApi,
+  updateTaskTitle as updateTaskTitleApi,
 } from "../../../services/taskApi";
 async function snapshotAndCancel(queryClient, queryKey) {
   await queryClient.cancelQueries({ queryKey });
@@ -128,6 +129,24 @@ function useTasks() {
     },
   });
 
+  const updateTitleMutation = useMutation({
+    mutationFn: ({ id, title }) => updateTaskTitleApi(id, title),
+    onMutate: async ({ id, title }) => {
+      const previousTasks = await snapshotAndCancel(queryClient, queryKey);
+      queryClient.setQueryData(queryKey, (old) =>
+        old.map((task) => (task.id === id ? { ...task, title } : task)),
+      );
+      return { previousTasks };
+    },
+    onError: (err, variables, context) =>
+      rollback(queryClient, queryKey, context),
+    onSettled: () => syncWithServer(queryClient, queryKey),
+  });
+
+  function updateTaskTitle(id, title) {
+    updateTitleMutation.mutate({ id, title });
+  }
+
   function addTask(title, status, completed) {
     addTaskMutation.mutate({ title, status, completed });
   }
@@ -153,6 +172,7 @@ function useTasks() {
     deleteTask,
     toggleTaskCompleted,
     updateTaskDueDate,
+    updateTaskTitle,
   };
 }
 
