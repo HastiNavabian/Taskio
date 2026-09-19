@@ -1,9 +1,12 @@
-import Button from "./Button";
+import { createPortal } from "react-dom";
+
 function Modal({ children }) {
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-box">{children}</div>
-    </div>
+    </div>,
+    document.body,
   );
 }
+
 export default Modal;
