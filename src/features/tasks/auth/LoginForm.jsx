@@ -14,13 +14,22 @@ function LoginForm() {
     e.preventDefault();
     setError(null);
     setMessage(null);
-    const { error } = isSignUp
-      ? await signUp(email, password)
-      : await signIn(email, password);
-    if (error) {
-      setError(error.message);
-    } else if (isSignUp) {
-      setMessage("Check your email to confirm your account.");
+
+    if (isSignUp) {
+      const { data, error } = await signUp(email, password);
+
+      if (error) {
+        setError(error.message);
+      } else if (data?.user?.identities?.length === 0) {
+        setError("You already have an account. Try signing in instead.");
+      } else {
+        setMessage("Check your email to confirm your account.");
+      }
+    } else {
+      const { error } = await signIn(email, password);
+      if (error) {
+        setError(error.message);
+      }
     }
   }
 
