@@ -742,3 +742,52 @@ body.theme-transition {
   top: auto;
   inset-inline-end: auto;
 }
+.task-title-input {
+  flex: 1;
+  font-size: var(--text-base);
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+.task-title-edit {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-xs);
+  opacity: 0;
+  padding: 2px 4px;
+  transition: opacity 0.15s ease;
+}
+
+.task-card:hover .task-title-edit {
+  opacity: 1;
+}
+
+.task-title-edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  opacity: 0;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+.task-card:hover .task-title-edit {
+  opacity: 1;
+}
+
+.task-title-edit:hover {
+  background: var(--bg);
+  color: var(--accent);
+}

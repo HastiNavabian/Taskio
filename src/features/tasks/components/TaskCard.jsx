@@ -13,6 +13,7 @@ function TaskCard({
   onDelete,
   onToggleCompleted,
   onDueDateChange,
+  onTitleChange,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,6 +21,9 @@ function TaskCard({
   const menuRef = useRef(null);
   const triggerRef = useRef(null);
   const dateInputRef = useRef(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(title);
+  const titleInputRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -53,6 +57,34 @@ function TaskCard({
     setMenuOpen((open) => !open);
   }
 
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  function handleTitleSave() {
+    const trimmed = editedTitle.trim();
+    if (trimmed !== "" && trimmed !== title) {
+      onTitleChange(id, trimmed);
+    } else {
+      setEditedTitle(title);
+    }
+    setIsEditingTitle(false);
+  }
+
+  function handleTitleKeyDown(e) {
+    console.log("key pressed:", e.key);
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleTitleSave();
+    } else if (e.key === "Escape") {
+      setEditedTitle(title);
+      setIsEditingTitle(false);
+    }
+  }
+
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id,
   });
@@ -76,9 +108,46 @@ function TaskCard({
           }}
           onClick={(e) => e.stopPropagation()}
         />
-        <span className={`task-title ${completed ? "task-title-done" : ""}`}>
-          {title}
-        </span>
+
+        {isEditingTitle ? (
+          <input
+            ref={titleInputRef}
+            className="task-title-input"
+            value={editedTitle}
+            onChange={(e) => setEditedTitle(e.target.value)}
+            onBlur={handleTitleSave}
+            onKeyDown={handleTitleKeyDown}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span className={`task-title ${completed ? "task-title-done" : ""}`}>
+            {title}
+          </span>
+        )}
+
+        {!isEditingTitle && (
+          <button
+            type="button"
+            className="task-title-edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditingTitle(true);
+            }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z" />
+            </svg>
+          </button>
+        )}
+
         <button
           type="button"
           ref={triggerRef}

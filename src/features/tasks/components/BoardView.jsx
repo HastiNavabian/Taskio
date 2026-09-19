@@ -24,6 +24,7 @@ function BoardView({ user, signOut }) {
     deleteTask,
     toggleTaskCompleted,
     updateTaskDueDate,
+    updateTaskTitle,
   } = useTasks();
 
   const sensors = useSensors(
@@ -107,6 +108,7 @@ function BoardView({ user, signOut }) {
             onDelete={deleteTask}
             onToggleCompleted={toggleTaskCompleted}
             onDueDateChange={updateTaskDueDate}
+            onTitleChange={updateTaskTitle}
           />
           <Column
             title="This Week"
@@ -116,6 +118,7 @@ function BoardView({ user, signOut }) {
             onDelete={deleteTask}
             onToggleCompleted={toggleTaskCompleted}
             onDueDateChange={updateTaskDueDate}
+            onTitleChange={updateTaskTitle}
           />
           <Column
             title="Completed"
@@ -125,6 +128,7 @@ function BoardView({ user, signOut }) {
             onDelete={deleteTask}
             onToggleCompleted={toggleTaskCompleted}
             onDueDateChange={updateTaskDueDate}
+            onTitleChange={updateTaskTitle}
           />
         </div>
         <DragOverlay dropAnimation={null}>
