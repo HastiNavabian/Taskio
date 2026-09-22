@@ -11,6 +11,7 @@ import SearchInput from "./SearchInput";
 import useSearchStore from "../../../store/searchStore";
 import useTasks from "../../../features/tasks/hooks/useTasks";
 import { useTheme } from "../../../context/ThemeContext";
+import Sidebar from "./Sidebar";
 
 function BoardView({ user, signOut }) {
   const searchTerm = useSearchStore((state) => state.searchTerm);
@@ -27,13 +28,14 @@ function BoardView({ user, signOut }) {
     updateTaskTitle,
   } = useTasks();
 
+  const [activeTask, setActiveTask] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
     }),
   );
-
-  const [activeTask, setActiveTask] = useState(null);
 
   function handleDragStart(event) {
     const task = tasks.find((t) => t.id === event.active.id);
@@ -79,75 +81,68 @@ function BoardView({ user, signOut }) {
   }
 
   return (
-    <>
-      <header className="app-header">
-        <div className="app-header-brand">Taskio</div>
-        <div className="app-header-search">
-          <SearchInput />
-        </div>
-        <div className="app-header-actions">
-          <button type="button" className="icon-button" onClick={toggleTheme}>
-            {theme === "light" ? "🌙" : "☀️"}
-          </button>
-          <button type="button" className="icon-button" onClick={signOut}>
-            🚪
-          </button>
-        </div>
-      </header>
+    <div className="app-shell">
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed((prev) => !prev)}
+      />
 
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="board">
-          <Column
-            title="Today"
-            status="today"
-            tasks={todayTasks}
-            onAddTask={addTask}
-            onDelete={deleteTask}
-            onToggleCompleted={toggleTaskCompleted}
-            onDueDateChange={updateTaskDueDate}
-            onTitleChange={updateTaskTitle}
-          />
-          <Column
-            title="This Week"
-            status="this-week"
-            tasks={thisWeekTasks}
-            onAddTask={addTask}
-            onDelete={deleteTask}
-            onToggleCompleted={toggleTaskCompleted}
-            onDueDateChange={updateTaskDueDate}
-            onTitleChange={updateTaskTitle}
-          />
-          <Column
-            title="Completed"
-            status="completed"
-            tasks={completedTasks}
-            onAddTask={addTask}
-            onDelete={deleteTask}
-            onToggleCompleted={toggleTaskCompleted}
-            onDueDateChange={updateTaskDueDate}
-            onTitleChange={updateTaskTitle}
-          />
-        </div>
-        <DragOverlay dropAnimation={null}>
-          {activeTask ? (
-            <div className="task-card task-card-overlay">
-              <div className="task-card-header">
-                <input
-                  type="checkbox"
-                  checked={activeTask.completed}
-                  readOnly
-                />
-                <span className="task-title">{activeTask.title}</span>
+      <main className="main-content">
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="board">
+            <Column
+              title="Today"
+              status="today"
+              tasks={todayTasks}
+              onAddTask={addTask}
+              onDelete={deleteTask}
+              onToggleCompleted={toggleTaskCompleted}
+              onDueDateChange={updateTaskDueDate}
+              onTitleChange={updateTaskTitle}
+            />
+            <Column
+              title="This Week"
+              status="this-week"
+              tasks={thisWeekTasks}
+              onAddTask={addTask}
+              onDelete={deleteTask}
+              onToggleCompleted={toggleTaskCompleted}
+              onDueDateChange={updateTaskDueDate}
+              onTitleChange={updateTaskTitle}
+            />
+            <Column
+              title="Completed"
+              status="completed"
+              tasks={completedTasks}
+              onAddTask={addTask}
+              onDelete={deleteTask}
+              onToggleCompleted={toggleTaskCompleted}
+              onDueDateChange={updateTaskDueDate}
+              onTitleChange={updateTaskTitle}
+            />
+          </div>
+
+          <DragOverlay dropAnimation={null}>
+            {activeTask ? (
+              <div className="task-card task-card-overlay">
+                <div className="task-card-header">
+                  <input
+                    type="checkbox"
+                    checked={activeTask.completed}
+                    readOnly
+                  />
+                  <span className="task-title">{activeTask.title}</span>
+                </div>
               </div>
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
-    </>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      </main>
+    </div>
   );
 }
 
