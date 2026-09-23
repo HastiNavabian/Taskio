@@ -7,6 +7,7 @@ function mapTaskFromDb(row) {
     status: row.status,
     completed: row.completed,
     dueDate: row.due_date,
+    categoryId: row.category_id,
   };
 }
 export async function getTasks() {
@@ -23,14 +24,21 @@ export async function getTasks() {
   return data.map(mapTaskFromDb);
 }
 
-export async function createTask(title, status, completed = false) {
+export async function createTask(
+  title,
+  status,
+  completed = false,
+  categoryId = null,
+) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { data, error } = await supabase
     .from("tasks")
-    .insert([{ title, status, completed, user_id: user.id }])
+    .insert([
+      { title, status, completed, user_id: user.id, category_id: categoryId },
+    ])
     .select()
     .single();
 
@@ -74,5 +82,13 @@ export async function deleteTask(id) {
 export async function updateTaskTitle(id, title) {
   const { error } = await supabase.from("tasks").update({ title }).eq("id", id);
 
+  if (error) throw new Error(error.message);
+}
+
+export async function updateTaskCategory(id, categoryId) {
+  const { error } = await supabase
+    .from("tasks")
+    .update({ category_id: categoryId })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 }
