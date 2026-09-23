@@ -17,7 +17,8 @@ export async function getTasks() {
   const { data, error } = await supabase
     .from("tasks")
     .select("*")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: true });
   if (error) {
     throw new Error(error.message);
   }
