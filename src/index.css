@@ -302,17 +302,6 @@ body.theme-transition {
   color: var(--text);
 }
 
-.task-menu-up {
-  top: auto;
-  bottom: 38px;
-}
-
-.task-menu-portal {
-  position: fixed;
-  top: auto;
-  inset-inline-end: auto;
-}
-
 .column-menu,
 .task-menu {
   position: absolute;
@@ -336,6 +325,17 @@ body.theme-transition {
 .task-menu {
   top: 38px;
   inset-inline-end: var(--space-2);
+}
+
+.task-menu-up {
+  top: auto;
+  bottom: 38px;
+}
+
+.task-menu-portal {
+  position: fixed;
+  top: auto;
+  inset-inline-end: auto;
 }
 
 .column-menu button,
@@ -810,4 +810,110 @@ body.theme-transition {
     width: 100%;
     max-width: 340px;
   }
+}
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.category-item:hover {
+  background: var(--bg);
+}
+
+.category-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.category-name {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+
+.category-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--text-md);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+}
+
+.category-item:hover .category-delete {
+  opacity: 1;
+}
+
+.category-delete:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.sidebar-add-category {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  padding: 6px 8px;
+  text-align: left;
+  width: 100%;
+}
+
+.sidebar-add-category:hover {
+  color: var(--accent);
+}
+
+.category-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 8px;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+}
+
+.category-form input {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: var(--text-sm);
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.category-color-picker {
+  display: flex;
+  gap: 6px;
+}
+
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.color-swatch-selected {
+  border-color: var(--text);
+}
+
+.category-form-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+.category-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
