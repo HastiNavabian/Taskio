@@ -917,3 +917,11 @@ body.theme-transition {
   align-items: center;
   gap: 6px;
 }
+.category-item {
+  cursor: pointer;
+}
+
+.category-item-active {
+  background: var(--bg);
+  font-weight: 600;
+}

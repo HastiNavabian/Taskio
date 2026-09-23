@@ -34,6 +34,9 @@ function BoardView({ user, signOut }) {
 
   const [activeTask, setActiveTask] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const selectedCategoryId = useSearchStore(
+    (state) => state.selectedCategoryId,
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -63,9 +66,14 @@ function BoardView({ user, signOut }) {
     }
   }
 
-  const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      !selectedCategoryId || task.categoryId === selectedCategoryId;
+    return matchesSearch && matchesCategory;
+  });
 
   const todayTasks = filteredTasks.filter(
     (task) => task.status === "today" && !task.completed,

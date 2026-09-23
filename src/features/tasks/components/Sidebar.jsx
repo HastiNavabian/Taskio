@@ -3,6 +3,7 @@ import { useTheme } from "../../../context/ThemeContext";
 import { useState } from "react";
 import SearchInput from "./SearchInput";
 import useCategories from "../hooks/useCategories";
+import useSearchStore from "../../../store/searchStore";
 
 const CATEGORY_COLORS = [
   "#e74c3c",
@@ -21,6 +22,13 @@ function Sidebar({ collapsed, onToggle }) {
   const [newName, setNewName] = useState("");
   const [newColor, setNewColor] = useState(CATEGORY_COLORS[0]);
 
+  const selectedCategoryId = useSearchStore(
+    (state) => state.selectedCategoryId,
+  );
+  const setSelectedCategoryId = useSearchStore(
+    (state) => state.setSelectedCategoryId,
+  );
+
   function handleAddCategory(e) {
     e.preventDefault();
     if (newName.trim() === "") return;
@@ -35,6 +43,9 @@ function Sidebar({ collapsed, onToggle }) {
       setNewName("");
       setNewColor(CATEGORY_COLORS[0]);
     }
+  }
+  function handleCategoryClick(id) {
+    setSelectedCategoryId(selectedCategoryId === id ? null : id);
   }
   return (
     <aside className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`}>
@@ -55,7 +66,11 @@ function Sidebar({ collapsed, onToggle }) {
             <div className="sidebar-section-title">Categories</div>
 
             {categories.map((category) => (
-              <div key={category.id} className="category-item">
+              <div
+                key={category.id}
+                className={`category-item ${selectedCategoryId === category.id ? "category-item-active" : ""}`}
+                onClick={() => handleCategoryClick(category.id)}
+              >
                 <span
                   className="category-dot"
                   style={{ backgroundColor: category.color }}
@@ -64,7 +79,10 @@ function Sidebar({ collapsed, onToggle }) {
                 <button
                   type="button"
                   className="category-delete"
-                  onClick={() => deleteCategory(category.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteCategory(category.id);
+                  }}
                 >
                   ×
                 </button>
