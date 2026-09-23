@@ -9,11 +9,14 @@ function TaskCard({
   title,
   status,
   completed,
+  categoryId,
+  categories,
   dueDate,
   onDelete,
   onToggleCompleted,
   onDueDateChange,
   onTitleChange,
+  onCategoryChange,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,6 +26,7 @@ function TaskCard({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const titleInputRef = useRef(null);
+  const category = categories.find((c) => c.id === categoryId);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -101,7 +105,10 @@ function TaskCard({
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        borderInlineStart: category ? `3px solid ${category.color}` : undefined,
+      }}
       {...listeners}
       {...attributes}
       className="task-card"
@@ -194,6 +201,22 @@ function TaskCard({
               />
             </label>
 
+            <label className="menu-date-label">
+              Category
+              <select
+                value={categoryId || ""}
+                onChange={(e) => onCategoryChange(id, e.target.value || null)}
+                className="menu-date-input"
+              >
+                <option value="">No category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <button
               type="button"
               onClick={() => {
@@ -213,6 +236,20 @@ function TaskCard({
           <p>Status: {status}</p>
           <p>Completed: {completed ? "Yes" : "No"}</p>
           <p>Due date: {dueDate || "None"}</p>
+          <p className="modal-category-row">
+            Category:{" "}
+            {category ? (
+              <span className="category-inline">
+                <span
+                  className="category-dot"
+                  style={{ backgroundColor: category.color }}
+                />
+                {category.name}
+              </span>
+            ) : (
+              "None"
+            )}
+          </p>
           <Button onClick={() => setIsModalOpen(false)}>Close</Button>
         </Modal>
       )}

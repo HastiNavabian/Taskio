@@ -12,10 +12,13 @@ import useSearchStore from "../../../store/searchStore";
 import useTasks from "../../../features/tasks/hooks/useTasks";
 import { useTheme } from "../../../context/ThemeContext";
 import Sidebar from "./Sidebar";
+import useCategories from "../hooks/useCategories";
 
 function BoardView({ user, signOut }) {
   const searchTerm = useSearchStore((state) => state.searchTerm);
   const { theme, toggleTheme } = useTheme();
+  const { categories } = useCategories();
+
   const {
     tasks,
     isLoading,
@@ -26,6 +29,7 @@ function BoardView({ user, signOut }) {
     toggleTaskCompleted,
     updateTaskDueDate,
     updateTaskTitle,
+    updateTaskCategory,
   } = useTasks();
 
   const [activeTask, setActiveTask] = useState(null);
@@ -103,6 +107,8 @@ function BoardView({ user, signOut }) {
               onToggleCompleted={toggleTaskCompleted}
               onDueDateChange={updateTaskDueDate}
               onTitleChange={updateTaskTitle}
+              categories={categories}
+              onCategoryChange={updateTaskCategory}
             />
             <Column
               title="This Week"
@@ -113,6 +119,8 @@ function BoardView({ user, signOut }) {
               onToggleCompleted={toggleTaskCompleted}
               onDueDateChange={updateTaskDueDate}
               onTitleChange={updateTaskTitle}
+              categories={categories}
+              onCategoryChange={updateTaskCategory}
             />
             <Column
               title="Completed"
@@ -123,6 +131,8 @@ function BoardView({ user, signOut }) {
               onToggleCompleted={toggleTaskCompleted}
               onDueDateChange={updateTaskDueDate}
               onTitleChange={updateTaskTitle}
+              categories={categories}
+              onCategoryChange={updateTaskCategory}
             />
           </div>
 

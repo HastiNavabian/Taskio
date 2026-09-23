@@ -7,12 +7,14 @@ function Column({
   title,
   tasks,
   status,
+  categories,
   onStatusChange,
   onAddTask,
   onDelete,
   onToggleCompleted,
   onDueDateChange,
   onTitleChange,
+  onCategoryChange,
 }) {
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -95,12 +97,15 @@ function Column({
           title={task.title}
           status={task.status}
           completed={task.completed}
+          categoryId={task.categoryId}
+          categories={categories}
           onStatusChange={onStatusChange}
           onDelete={onDelete}
           onToggleCompleted={onToggleCompleted}
           onDueDateChange={onDueDateChange}
           dueDate={task.dueDate}
           onTitleChange={onTitleChange}
+          onCategoryChange={onCategoryChange}
         />
       ))}
       {tasks.length === 0 && !isAdding && (
