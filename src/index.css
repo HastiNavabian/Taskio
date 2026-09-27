@@ -107,7 +107,9 @@ body.theme-transition {
   display: flex;
   flex-direction: column;
   padding: 16px 12px;
-  transition: width 0.25s ease;
+  transition:
+    width 0.25s ease,
+    transform 0.25s ease;
   overflow: hidden;
 }
 
@@ -300,9 +302,9 @@ body.theme-transition {
   cursor: pointer;
 }
 
-.category-item:hover {
+/* .category-item:hover {
   background: var(--bg);
-}
+} */
 
 .category-item-active {
   background: var(--bg);
@@ -1039,6 +1041,11 @@ body.theme-transition {
     z-index: 100;
     transform: translateX(0);
     box-shadow: var(--shadow-lg);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .category-item:hover {
+      background: var(--bg);
+    }
   }
 
   .sidebar-collapsed {
