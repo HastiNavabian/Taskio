@@ -238,7 +238,9 @@ body.theme-transition {
 }
 
 .sidebar-footer-icon {
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .sidebar-user-email {
