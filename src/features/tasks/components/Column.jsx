@@ -64,14 +64,6 @@ function Column({
         <h2 className="column-title">
           {title} <span className="task-count">{tasks.length}</span>
         </h2>
-        <button
-          type="button"
-          ref={triggerRef}
-          className="column-menu-trigger"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          ⋯
-        </button>
       </div>
 
       <button
