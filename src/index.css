@@ -300,6 +300,11 @@ body.theme-transition {
   padding: 6px 8px;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
 }
 
 /* .category-item:hover {
@@ -1045,6 +1050,11 @@ body.theme-transition {
   @media (hover: hover) and (pointer: fine) {
     .category-item:hover {
       background: var(--bg);
+    }
+  }
+  @media (max-width: 768px) {
+    .column form input {
+      font-size: 16px;
     }
   }
 
