@@ -103,7 +103,7 @@ function BoardView({ user, signOut }) {
       {!sidebarCollapsed && (
         <div
           className="sidebar-backdrop"
-          onClick={() => setSidebarCollapsed(true)}
+          // onClick={() => setSidebarCollapsed(true)}
         />
       )}
 
