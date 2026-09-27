@@ -4,6 +4,7 @@ import { useState } from "react";
 import SearchInput from "./SearchInput";
 import useCategories from "../hooks/useCategories";
 import useSearchStore from "../../../store/searchStore";
+import useTasks from "../hooks/useTasks";
 
 const CATEGORY_COLORS = [
   "#e74c3c",
@@ -18,12 +19,17 @@ function Sidebar({ collapsed, onToggle }) {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { categories, addCategory, deleteCategory } = useCategories();
+  const { tasks } = useTasks();
   const selectedCategoryId = useSearchStore((s) => s.selectedCategoryId);
   const setSelectedCategoryId = useSearchStore((s) => s.setSelectedCategoryId);
 
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [newColor, setNewColor] = useState(CATEGORY_COLORS[0]);
+
+  function categoryTaskCount(categoryId) {
+    return tasks.filter((t) => t.categoryId === categoryId).length;
+  }
 
   function handleAddCategory(e) {
     e.preventDefault();
@@ -39,10 +45,6 @@ function Sidebar({ collapsed, onToggle }) {
       setIsAdding(false);
       setNewName("");
     }
-  }
-
-  function handleCategoryClick(id) {
-    setSelectedCategoryId(selectedCategoryId === id ? null : id);
   }
 
   return (
@@ -74,17 +76,29 @@ function Sidebar({ collapsed, onToggle }) {
         <nav className="sidebar-nav">
           <div className="sidebar-section-title">Lists</div>
 
+          <div
+            className={`category-item ${selectedCategoryId === null ? "category-item-active" : ""}`}
+            onClick={() => setSelectedCategoryId(null)}
+          >
+            <span className="category-dot category-dot-all" />
+            <span className="category-name">All</span>
+            <span className="task-count">{tasks.length}</span>
+          </div>
+
           {categories.map((category) => (
             <div
               key={category.id}
               className={`category-item ${selectedCategoryId === category.id ? "category-item-active" : ""}`}
-              onClick={() => handleCategoryClick(category.id)}
+              onClick={() => setSelectedCategoryId(category.id)}
             >
               <span
                 className="category-dot"
                 style={{ backgroundColor: category.color }}
               />
               <span className="category-name">{category.name}</span>
+              <span className="task-count">
+                {categoryTaskCount(category.id)}
+              </span>
               <button
                 type="button"
                 className="category-delete"

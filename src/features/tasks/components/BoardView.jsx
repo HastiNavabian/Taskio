@@ -32,7 +32,9 @@ function BoardView({ user, signOut }) {
   } = useTasks();
 
   const [activeTask, setActiveTask] = useState(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => window.innerWidth <= 768,
+  );
   const selectedCategoryId = useSearchStore(
     (state) => state.selectedCategoryId,
   );
@@ -98,7 +100,23 @@ function BoardView({ user, signOut }) {
         onToggle={() => setSidebarCollapsed((prev) => !prev)}
       />
 
+      {!sidebarCollapsed && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarCollapsed(true)}
+        />
+      )}
+
       <main className="main-content">
+        {sidebarCollapsed && (
+          <button
+            type="button"
+            className="mobile-menu-btn"
+            onClick={() => setSidebarCollapsed(false)}
+          >
+            ☰
+          </button>
+        )}
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
