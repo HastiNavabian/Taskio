@@ -7,7 +7,6 @@ import {
 } from "@dnd-kit/core";
 import { useState } from "react";
 import Column from "./Column";
-import SearchInput from "./SearchInput";
 import useSearchStore from "../../../store/searchStore";
 import useTasks from "../../../features/tasks/hooks/useTasks";
 import { useTheme } from "../../../context/ThemeContext";
