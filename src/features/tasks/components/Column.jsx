@@ -15,8 +15,10 @@ function Column({
   onDueDateChange,
   onTitleChange,
   onCategoryChange,
+  isAdding,
+  onStartAdding,
+  onStopAdding,
 }) {
-  const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,6 +28,21 @@ function Column({
   const { setNodeRef, isOver } = useDroppable({
     id: status,
   });
+
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (formRef.current && !formRef.current.contains(event.target)) {
+        onStopAdding();
+      }
+    }
+    if (isAdding) {
+      document.addEventListener("pointerdown", handleClickOutside);
+    }
+    return () =>
+      document.removeEventListener("pointerdown", handleClickOutside);
+  }, [isAdding, onStopAdding]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -53,7 +70,7 @@ function Column({
       onAddTask(newTitle, status, false);
     }
     setNewTitle("");
-    setIsAdding(false);
+    onStopAdding();
   }
   return (
     <div
@@ -69,7 +86,7 @@ function Column({
       <button
         type="button"
         className="add-task-btn"
-        onClick={() => setIsAdding(true)}
+        onPointerUp={() => onStartAdding()}
       >
         <span className="add-task-icon">+</span> Add task
       </button>
@@ -96,7 +113,7 @@ function Column({
         <p className="column-empty">No tasks yet</p>
       )}
       {isAdding && (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} ref={formRef}>
           <input
             type="text"
             value={newTitle}
@@ -106,7 +123,7 @@ function Column({
           />
           <div>
             <Button type="submit">Add</Button>
-            <Button variant="secondary" onClick={() => setIsAdding(false)}>
+            <Button variant="secondary" onClick={() => onStopAdding()}>
               Cancel
             </Button>
           </div>

@@ -17,6 +17,7 @@ function BoardView({ user, signOut }) {
   const searchTerm = useSearchStore((state) => state.searchTerm);
   const { theme, toggleTheme } = useTheme();
   const { categories } = useCategories();
+  const [addingStatus, setAddingStatus] = useState(null);
 
   const {
     tasks,
@@ -103,7 +104,7 @@ function BoardView({ user, signOut }) {
       {!sidebarCollapsed && (
         <div
           className="sidebar-backdrop"
-          // onClick={() => setSidebarCollapsed(true)}
+          onClick={() => setSidebarCollapsed(true)}
         />
       )}
 
@@ -134,6 +135,9 @@ function BoardView({ user, signOut }) {
               onTitleChange={updateTaskTitle}
               categories={categories}
               onCategoryChange={updateTaskCategory}
+              isAdding={addingStatus === "today"}
+              onStartAdding={() => setAddingStatus("today")}
+              onStopAdding={() => setAddingStatus(null)}
             />
             <Column
               title="This Week"
@@ -146,6 +150,9 @@ function BoardView({ user, signOut }) {
               onTitleChange={updateTaskTitle}
               categories={categories}
               onCategoryChange={updateTaskCategory}
+              isAdding={addingStatus === "this-week"}
+              onStartAdding={() => setAddingStatus("this-week")}
+              onStopAdding={() => setAddingStatus(null)}
             />
             <Column
               title="Completed"
@@ -158,6 +165,9 @@ function BoardView({ user, signOut }) {
               onTitleChange={updateTaskTitle}
               categories={categories}
               onCategoryChange={updateTaskCategory}
+              isAdding={addingStatus === "completed"}
+              onStartAdding={() => setAddingStatus("completed")}
+              onStopAdding={() => setAddingStatus(null)}
             />
           </div>
 
