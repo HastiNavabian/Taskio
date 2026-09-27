@@ -76,20 +76,22 @@ function Sidebar({ collapsed, onToggle }) {
         <nav className="sidebar-nav">
           <div className="sidebar-section-title">Lists</div>
 
-          <div
+          <button
+            type="button"
             className={`category-item ${selectedCategoryId === null ? "category-item-active" : ""}`}
-            onClick={() => setSelectedCategoryId(null)}
+            onPointerUp={() => setSelectedCategoryId(null)}
           >
             <span className="category-dot category-dot-all" />
             <span className="category-name">All</span>
             <span className="task-count">{tasks.length}</span>
-          </div>
+          </button>
 
           {categories.map((category) => (
-            <div
+            <button
+              type="button"
               key={category.id}
               className={`category-item ${selectedCategoryId === category.id ? "category-item-active" : ""}`}
-              onClick={() => setSelectedCategoryId(category.id)}
+              onPointerUp={() => setSelectedCategoryId(category.id)}
             >
               <span
                 className="category-dot"
@@ -99,17 +101,17 @@ function Sidebar({ collapsed, onToggle }) {
               <span className="task-count">
                 {categoryTaskCount(category.id)}
               </span>
-              <button
-                type="button"
+              <span
+                role="button"
                 className="category-delete"
-                onClick={(e) => {
+                onPointerUp={(e) => {
                   e.stopPropagation();
                   deleteCategory(category.id);
                 }}
               >
                 ×
-              </button>
-            </div>
+              </span>
+            </button>
           ))}
 
           {isAdding ? (
