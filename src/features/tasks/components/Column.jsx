@@ -61,34 +61,26 @@ function Column({
       className={`column ${isOver ? "column-drag-over" : ""}`}
     >
       <div className="column-header">
-        <h2>
-          {title}
-
-          <span className="task-count">{tasks.length}</span>
+        <h2 className="column-title">
+          {title} <span className="task-count">{tasks.length}</span>
         </h2>
         <button
           type="button"
           ref={triggerRef}
           className="column-menu-trigger"
-          onClick={() => setMenuOpen((open) => !open)}
+          onClick={() => setMenuOpen((o) => !o)}
         >
           ⋯
         </button>
       </div>
 
-      {menuOpen && (
-        <div className="column-menu" ref={menuRef}>
-          <button
-            type="button"
-            onClick={() => {
-              setIsAdding(true);
-              setMenuOpen(false);
-            }}
-          >
-            Add card
-          </button>
-        </div>
-      )}
+      <button
+        type="button"
+        className="add-task-btn"
+        onClick={() => setIsAdding(true)}
+      >
+        <span className="add-task-icon">+</span> Add task
+      </button>
 
       {tasks.map((task) => (
         <TaskCard
