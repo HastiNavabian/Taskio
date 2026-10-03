@@ -170,7 +170,7 @@ function Sidebar({ collapsed, onToggle }) {
             </span>
             {theme === "light" ? "Dark mode" : "Light mode"}
           </button>
-          <div className="sidebar-user-email">{user.email}</div>
+          <div className="sidebar-user-email">{user.email || "Guest"}</div>
           <button
             type="button"
             className="sidebar-footer-item sidebar-signout"

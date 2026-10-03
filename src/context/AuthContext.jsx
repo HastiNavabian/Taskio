@@ -34,6 +34,10 @@ export function AuthProvider({ children }) {
       options: { emailRedirectTo: window.location.origin },
     });
   }
+
+  async function signInAnonymously() {
+    return supabase.auth.signInAnonymously();
+  }
   async function signIn(email, password) {
     return supabase.auth.signInWithPassword({ email, password });
   }
@@ -62,6 +66,7 @@ export function AuthProvider({ children }) {
         resetPassword,
         updatePassword,
         isPasswordRecovery,
+        signInAnonymously,
       }}
     >
       {children}

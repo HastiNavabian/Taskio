@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 
 function LoginForm() {
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp, resetPassword, signInAnonymously } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -36,23 +37,32 @@ function LoginForm() {
   async function handleForgotPassword() {
     setError(null);
     setMessage(null);
+
     if (!email) {
-      setError("Enter your email first, then click Forgot Password.");
+      setError("Enter your email first, then click Forgot password.");
       return;
     }
 
     const { error } = await resetPassword(email);
-
     if (error) {
       setError(error.message);
     } else {
-      setMessage("Password reset email sent. Check your inbox.");
+      setMessage("Check your email for a password reset link.");
+    }
+  }
+
+  async function handleGuestLogin() {
+    setError(null);
+    setMessage(null);
+    const { error } = await signInAnonymously();
+    if (error) {
+      setError(error.message);
     }
   }
 
   return (
     <div className="auth-container">
-      <form onSubmit={handleSubmit} className="auth-form">
+      <form className="auth-form" onSubmit={handleSubmit}>
         <h2>{isSignUp ? "Sign Up" : "Sign In"}</h2>
 
         <input
@@ -62,6 +72,7 @@ function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+
         <div className="password-field">
           <input
             type={showPassword ? "text" : "password"}
@@ -78,6 +89,16 @@ function LoginForm() {
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
+
+        {!isSignUp && (
+          <button
+            type="button"
+            className="forgot-password"
+            onClick={handleForgotPassword}
+          >
+            Forgot password?
+          </button>
+        )}
 
         {error && <p className="auth-error">{error}</p>}
         {message && <p className="auth-message">{message}</p>}
@@ -97,15 +118,21 @@ function LoginForm() {
             ? "Already have an account? Sign In"
             : "No account? Sign Up"}
         </button>
+
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
         <button
           type="button"
-          className="forgot-password"
-          onClick={handleForgotPassword}
+          className="guest-login-btn"
+          onClick={handleGuestLogin}
         >
-          Forgot password?
+          Continue as Guest
         </button>
       </form>
     </div>
   );
 }
+
 export default LoginForm;

@@ -973,6 +973,40 @@ body.theme-transition {
   padding: var(--space-1) var(--space-2);
 }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-2) 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.guest-login-btn {
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+}
+
+.guest-login-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
 /* ============================================
    STATUS MESSAGE
    ============================================ */
