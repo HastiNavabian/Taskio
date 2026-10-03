@@ -262,7 +262,7 @@ body.theme-transition {
 }
 
 .mobile-menu-btn {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   position: fixed;
@@ -1127,6 +1127,9 @@ body.theme-transition {
 
   .column form input {
     font-size: 16px;
+  }
+  .mobile-menu-btn {
+    display: flex;
   }
 }
 
