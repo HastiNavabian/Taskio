@@ -5,7 +5,7 @@ import {
   useSensors,
   DragOverlay,
 } from "@dnd-kit/core";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Column from "./Column";
 import useSearchStore from "../../../store/searchStore";
 import useTasks from "../../../features/tasks/hooks/useTasks";
@@ -15,9 +15,10 @@ import useCategories from "../hooks/useCategories";
 
 function BoardView({ user, signOut }) {
   const searchTerm = useSearchStore((state) => state.searchTerm);
-  const { theme, toggleTheme } = useTheme();
+  const selectedCategoryId = useSearchStore(
+    (state) => state.selectedCategoryId,
+  );
   const { categories } = useCategories();
-  const [addingStatus, setAddingStatus] = useState(null);
 
   const {
     tasks,
@@ -36,9 +37,7 @@ function BoardView({ user, signOut }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => window.innerWidth <= 768,
   );
-  const selectedCategoryId = useSearchStore(
-    (state) => state.selectedCategoryId,
-  );
+  const [addingStatus, setAddingStatus] = useState(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -118,6 +117,7 @@ function BoardView({ user, signOut }) {
             ☰
           </button>
         )}
+
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
