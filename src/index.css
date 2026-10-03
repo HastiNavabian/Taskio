@@ -1131,6 +1131,9 @@ body.theme-transition {
   .mobile-menu-btn {
     display: flex;
   }
+  .sidebar-nav .category-form input {
+    font-size: 16px;
+  }
 }
 
 @keyframes slide-fade-in {
