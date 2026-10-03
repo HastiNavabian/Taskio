@@ -45,6 +45,10 @@ body.light {
   --drag-over-bg: #dfe6f0;
 }
 
+body.light .menu-date-input {
+  color-scheme: light;
+}
+
 body.dark {
   --bg: #14171a;
   --surface: #1c2126;
@@ -57,6 +61,9 @@ body.dark {
   --danger: #f27272;
   --danger-soft: #3a2020;
   --drag-over-bg: #26303c;
+}
+body.dark .menu-date-input {
+  color-scheme: dark;
 }
 
 /* ============================================
