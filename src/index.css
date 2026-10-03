@@ -1134,6 +1134,9 @@ body.theme-transition {
   .sidebar-nav .category-form input {
     font-size: 16px;
   }
+  .sidebar-search .search-input {
+    font-size: 16px;
+  }
 }
 
 @keyframes slide-fade-in {
