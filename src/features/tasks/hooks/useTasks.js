@@ -1,5 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
+import { newId } from "../../../utils/newId";
+import {
+  BOARD_SCOPE,
+  BOARD_MUTATION_KEY,
+  syncBoardWhenIdle,
+} from "../../../utils/boardMutations";
+
 import {
   getTasks,
   createTask,
@@ -10,6 +17,7 @@ import {
   updateTaskTitle as updateTaskTitleApi,
   updateTaskCategory as updateTaskCategoryApi,
 } from "../../../services/taskApi";
+
 async function snapshotAndCancel(queryClient, queryKey) {
   await queryClient.cancelQueries({ queryKey });
   return queryClient.getQueryData(queryKey);
@@ -19,9 +27,6 @@ function rollback(queryClient, queryKey, context) {
   queryClient.setQueryData(queryKey, context.previousTasks);
 }
 
-function syncWithServer(queryClient, queryKey) {
-  queryClient.invalidateQueries({ queryKey });
-}
 function useTasks() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -36,29 +41,29 @@ function useTasks() {
     queryFn: getTasks,
   });
 
+  const common = {
+    mutationKey: BOARD_MUTATION_KEY,
+    scope: BOARD_SCOPE,
+    onError: (err, variables, context) =>
+      rollback(queryClient, queryKey, context),
+    onSettled: () => syncBoardWhenIdle(queryClient),
+  };
+
   const addTaskMutation = useMutation({
-    mutationFn: ({ title, status, completed }) =>
-      createTask(title, status, completed),
-    onMutate: async ({ title, status, completed }) => {
+    ...common,
+    mutationFn: (task) => createTask(task),
+    onMutate: async (task) => {
       const previousTasks = await snapshotAndCancel(queryClient, queryKey);
-      const tempTask = {
-        id: `temp-${crypto.randomUUID()}`,
-        title,
-        status,
-        completed,
-      };
-      queryClient.setQueryData(queryKey, (old) => [...old, tempTask]);
+      queryClient.setQueryData(queryKey, (old) => [
+        ...old,
+        { dueDate: null, categoryId: null, ...task },
+      ]);
       return { previousTasks };
-    },
-    onError: (err, variables, context) => {
-      rollback(queryClient, queryKey, context);
-    },
-    onSettled: () => {
-      syncWithServer(queryClient, queryKey);
     },
   });
 
   const moveTaskMutation = useMutation({
+    ...common,
     mutationFn: ({ id, status, completed }) =>
       moveTaskApi(id, status, completed),
     onMutate: async ({ id, status, completed }) => {
@@ -72,12 +77,10 @@ function useTasks() {
 
       return { previousTasks };
     },
-    onError: (err, variables, context) =>
-      rollback(queryClient, queryKey, context),
-    onSettled: () => syncWithServer(queryClient, queryKey),
   });
 
   const deleteTaskMutation = useMutation({
+    ...common,
     mutationFn: (id) => deleteTaskApi(id),
     onMutate: async (id) => {
       const previousTasks = await snapshotAndCancel(queryClient, queryKey);
@@ -86,15 +89,10 @@ function useTasks() {
       );
       return { previousTasks };
     },
-    onError: (err, id, context) => {
-      rollback(queryClient, queryKey, context);
-    },
-    onSettled: () => {
-      syncWithServer(queryClient, queryKey);
-    },
   });
 
   const toggleTaskCompletedMutation = useMutation({
+    ...common,
     mutationFn: ({ id, completed }) => toggleTaskCompletedApi(id, completed),
     onMutate: async ({ id, completed }) => {
       const previousTasks = await snapshotAndCancel(queryClient, queryKey);
@@ -105,15 +103,10 @@ function useTasks() {
       );
       return { previousTasks };
     },
-    onError: (err, variables, context) => {
-      rollback(queryClient, queryKey, context);
-    },
-    onSettled: () => {
-      syncWithServer(queryClient, queryKey);
-    },
   });
 
   const updateDueDateMutation = useMutation({
+    ...common,
     mutationFn: ({ id, dueDate }) => updateTaskDueDateApi(id, dueDate),
     onMutate: async ({ id, dueDate }) => {
       const previousTasks = await snapshotAndCancel(queryClient, queryKey);
@@ -124,15 +117,10 @@ function useTasks() {
       );
       return { previousTasks };
     },
-    onError: (err, variables, context) => {
-      rollback(queryClient, queryKey, context);
-    },
-    onSettled: () => {
-      syncWithServer(queryClient, queryKey);
-    },
   });
 
   const updateCategoryMutation = useMutation({
+    ...common,
     mutationFn: ({ id, categoryId }) => updateTaskCategoryApi(id, categoryId),
     onMutate: async ({ id, categoryId }) => {
       const previousTasks = await snapshotAndCancel(queryClient, queryKey);
@@ -141,12 +129,10 @@ function useTasks() {
       );
       return { previousTasks };
     },
-    onError: (err, variables, context) =>
-      rollback(queryClient, queryKey, context),
-    onSettled: () => syncWithServer(queryClient, queryKey),
   });
 
   const updateTitleMutation = useMutation({
+    ...common,
     mutationFn: ({ id, title }) => updateTaskTitleApi(id, title),
     onMutate: async ({ id, title }) => {
       const previousTasks = await snapshotAndCancel(queryClient, queryKey);
@@ -155,9 +141,6 @@ function useTasks() {
       );
       return { previousTasks };
     },
-    onError: (err, variables, context) =>
-      rollback(queryClient, queryKey, context),
-    onSettled: () => syncWithServer(queryClient, queryKey),
   });
 
   function updateTaskTitle(id, title) {
@@ -165,7 +148,7 @@ function useTasks() {
   }
 
   function addTask(title, status, completed) {
-    addTaskMutation.mutate({ title, status, completed });
+    addTaskMutation.mutate({ id: newId(), title, status, completed });
   }
   function deleteTask(id) {
     deleteTaskMutation.mutate(id);
