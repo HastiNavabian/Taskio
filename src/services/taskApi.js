@@ -25,12 +25,13 @@ export async function getTasks() {
   return data.map(mapTaskFromDb);
 }
 
-export async function createTask(
+export async function createTask({
+  id,
   title,
   status,
   completed = false,
   categoryId = null,
-) {
+}) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -38,7 +39,14 @@ export async function createTask(
   const { data, error } = await supabase
     .from("tasks")
     .insert([
-      { title, status, completed, user_id: user.id, category_id: categoryId },
+      {
+        id,
+        title,
+        status,
+        completed,
+        user_id: user.id,
+        category_id: categoryId,
+      },
     ])
     .select()
     .single();

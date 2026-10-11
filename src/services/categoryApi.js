@@ -15,14 +15,14 @@ export async function getCategories() {
   return data;
 }
 
-export async function createCategory(name, color) {
+export async function createCategory({ id, name, color }) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { data, error } = await supabase
     .from("categories")
-    .insert([{ name, color, user_id: user.id }])
+    .insert([{ id, name, color, user_id: user.id }])
     .select()
     .single();
 
