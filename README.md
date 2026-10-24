@@ -19,19 +19,21 @@ A Trello-style task management board built from scratch as a hands-on React lear
 - **Collapsible sidebar navigation** — categories, search, and theme/account controls, with a mobile-friendly drawer behavior
 - **Light / dark theme** — defaults to the user's system preference and updates live if it changes, with a manual override saved per user
 - **Fully responsive** — usable from desktop down to small phone screens, including iOS-specific fixes (no unwanted zoom on form focus, correct native date-picker theming, safe-area-aware layout)
+- **Installable PWA** — web app manifest and a service worker (Workbox) so Taskio can be installed on a phone or computer; the app shell is cached and loads without a network connection, while task data always comes fresh from Supabase
 - **Tests** — component tests with Vitest + Testing Library
 
 ## 🛠 Tech Stack
 
-| Layer          | Choice                                        | Why                                                                                            |
-| -------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| UI              | React 18 + Vite                                | Fast dev server, modern React with hooks                                                         |
-| Backend         | [Supabase](https://supabase.com) (Postgres + Auth) | Real database and authentication without standing up custom backend infrastructure               |
-| Server state    | [TanStack Query](https://tanstack.com/query)   | Caching, background refetching, and mutation handling instead of manual `useState`/`useEffect` fetch logic |
-| Client state    | [Zustand](https://github.com/pmndrs/zustand)   | Minimal global state (search term, active category filter) without prop drilling or Context boilerplate |
-| Drag & drop     | [@dnd-kit](https://dndkit.com)                 | Accessible, touch- and mouse-friendly drag and drop                                              |
-| Testing         | [Vitest](https://vitest.dev) + Testing Library | Fast, Vite-native test runner for component tests                                                |
-| Styling         | Plain CSS                                      | Hand-written design system (spacing/type scale, CSS custom properties for theming), no framework |
+| Layer        | Choice                                                        | Why                                                                                                        |
+| ------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| UI           | React 18 + Vite                                               | Fast dev server, modern React with hooks                                                                   |
+| Backend      | [Supabase](https://supabase.com) (Postgres + Auth)            | Real database and authentication without standing up custom backend infrastructure                         |
+| Server state | [TanStack Query](https://tanstack.com/query)                  | Caching, background refetching, and mutation handling instead of manual `useState`/`useEffect` fetch logic |
+| Client state | [Zustand](https://github.com/pmndrs/zustand)                  | Minimal global state (search term, active category filter) without prop drilling or Context boilerplate    |
+| Drag & drop  | [@dnd-kit](https://dndkit.com)                                | Accessible, touch- and mouse-friendly drag and drop                                                        |
+| Testing      | [Vitest](https://vitest.dev) + Testing Library                | Fast, Vite-native test runner for component tests                                                          |
+| Styling      | Plain CSS                                                     | Hand-written design system (spacing/type scale, CSS custom properties for theming), no framework           |
+| PWA          | [vite-plugin-pwa](https://vite-pwa-org.netlify.app) (Workbox) | Installable app with a cached app shell; Supabase requests are not cached                                  |
 
 ## 🏗 Architecture
 
@@ -99,6 +101,17 @@ npm run dev          # http://localhost:5173
 npm test
 ```
 
+### Trying the PWA locally
+
+The service worker only runs in a production build, not in `npm run dev`:
+
+```bash
+npm run build
+npm run preview      # http://localhost:4173
+```
+
+Then open the app in Chrome and use the install icon in the address bar. You can inspect it in DevTools → Application.
+
 ## 📍 Roadmap
 
 - [x] Phase 1 — Git & project setup
@@ -116,3 +129,4 @@ npm test
 - [x] Light/dark theme, system-preference aware
 - [x] Component tests with Vitest
 - [x] Bonus — React Native companion app with Expo ([taskio-mobile](https://github.com/HastiNavabian/taskio-mobile))
+- [x] Installable PWA (web app manifest + service worker)
