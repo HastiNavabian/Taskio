@@ -17,9 +17,9 @@ A Trello-style task management board built from scratch as a hands-on React lear
 - **Optimistic UI updates** — status changes, task creation, deletion, and category changes feel instant, with automatic rollback if the server request fails
 - **Live search** — filter tasks by title in real time, powered by a global Zustand store
 - **Collapsible sidebar navigation** — categories, search, and theme/account controls, with a mobile-friendly drawer behavior
-- **Light / dark theme** — defaults to the user's system preference and updates live if it changes, with a manual override saved per user
-- **Fully responsive** — usable from desktop down to small phone screens, including iOS-specific fixes (no unwanted zoom on form focus, correct native date-picker theming, safe-area-aware layout)
-- **Installable PWA** — web app manifest and a service worker (Workbox) so Taskio can be installed on a phone or computer; the app shell is cached and loads without a network connection, while task data always comes fresh from Supabase
+- **Light / dark theme** — defaults to the user's system preference and updates live if it changes, with a manual override saved in the browser (`localStorage`)
+- **Fully responsive** — usable from desktop down to small phone screens, including mobile fixes (16px inputs so iOS Safari doesn't zoom on focus, `color-scheme` so the native date picker follows the theme, `100dvh` so the sidebar fits the visible viewport)
+- **Installable PWA** — web app manifest and a service worker (Workbox) so Taskio can be installed on a phone or computer; the app shell is cached by the service worker, while task data always comes fresh from Supabase (so signing in and loading tasks still needs a connection)
 - **Tests** — component tests with Vitest + Testing Library
 
 ## 🛠 Tech Stack
@@ -45,6 +45,9 @@ src/
 │   └── categoryApi.js        # All category-related Supabase queries
 ├── store/
 │   └── searchStore.js        # Zustand store: search term + active category filter
+├── utils/
+│   ├── boardMutations.js     # Shared mutation scope + "refetch when idle" logic
+│   └── newId.js              # UUID v4 generator with a fallback for non-secure contexts
 ├── context/
 │   ├── AuthContext.jsx        # Auth state + sign up/in/out, password reset, guest login
 │   └── ThemeContext.jsx       # Light/dark theme, system-preference aware
@@ -73,14 +76,32 @@ src/
 - **Why TanStack Query instead of manual `fetch` + `useState`?** Manual data-fetching means every component that needs the same data re-fetches independently, with no shared cache and no built-in way to know when data goes stale. TanStack Query solves this with a centralized cache, automatic background refetching, and a consistent loading/error API.
 - **Why Zustand instead of React Context for search/filters?** Context works, but requires writing a `Provider`, wrapping the tree, and a bit of boilerplate for something as small as a search string or filter id. Zustand gives any component direct read/write access to shared client state with far less ceremony — and only re-renders components that actually subscribe to the piece of state that changed.
 - **Why optimistic updates?** Waiting for a server round-trip before updating the UI makes a task board feel sluggish. Optimistic updates apply the change immediately, then roll back automatically (via TanStack Query's `onMutate`/`onError`/`onSettled`) if the request fails — giving a fast, native-app feel without sacrificing correctness.
+- **Why do all mutations share one scope?** Every task and category mutation runs in a single TanStack Query `scope`, so they are sent to the server one after another. That guarantees a "move" or "delete" never reaches Supabase before the "create" it depends on, and keeps `tasks.category_id` (a foreign key) safe. The cache is refetched only when the last pending mutation settles, so rapid actions don't overwrite each other's optimistic state (see `utils/boardMutations.js`).
 - **Why `@dnd-kit`?** It handles both mouse and touch input, which mattered a lot here — getting drag-and-drop to feel right on mobile (without triggering accidental scrolls, text selection, or double-tap issues) took real tuning on top of the library's defaults.
 - **Why separate `taskApi.js` / `categoryApi.js` layers?** Keeps a single responsibility per file: these only know _how to talk to Supabase_; the hooks only know _how to manage that data in React_ (caching, optimistic updates). If the backend changes, only the service layer needs to change.
+
+## 🗄 Database
+
+Two tables, both protected by Row Level Security (`auth.uid() = user_id`):
+
+| Table        | Columns                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| `tasks`      | `id` (UUID, generated in the browser), `title`, `status` (`today` / `this-week`), `completed`, `due_date`, `category_id` (→ `categories.id`), `user_id`, `updated_at` |
+| `categories` | `id` (UUID), `name`, `color`, `user_id`, `created_at`                                            |
+
+A task is shown in the **Completed** column when `completed` is `true`; otherwise its `status` decides the column.
 
 ## 🚀 Getting Started
 
 ```bash
 npm install
 ```
+
+### Supabase setup
+
+1. Create a project at [supabase.com](https://supabase.com) and create the `tasks` and `categories` tables described above.
+2. Enable Row Level Security on both tables and add policies so a user can only select, insert, update and delete rows where `auth.uid() = user_id`.
+3. In **Authentication**, keep email sign-in enabled and turn on **Anonymous sign-ins** (used by "Continue as Guest").
 
 Create a `.env.local` file with your Supabase project credentials:
 
@@ -111,6 +132,11 @@ npm run preview      # http://localhost:4173
 ```
 
 Then open the app in Chrome and use the install icon in the address bar. You can inspect it in DevTools → Application.
+
+## ☁️ Deployment
+
+- **Hosting:** [Vercel](https://vercel.com). Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment variables in the project settings. The anon key is public by design; Row Level Security is what protects the data.
+- **Keeping the free-tier database awake:** Supabase pauses free projects after a period of inactivity. A scheduled GitHub Action (`.github/workflows/keep-alive.yml`) sends a tiny read request every few days. It needs two repository secrets, `SUPABASE_URL` and `SUPABASE_ANON_KEY`, and can also be started manually from the **Actions** tab.
 
 ## 📍 Roadmap
 
